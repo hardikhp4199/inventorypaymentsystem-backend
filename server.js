@@ -1,5 +1,6 @@
 // server.js
 var cors = require('cors');
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const express = require("express");
 const app = express();

@@ -1,9 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const contractABI = require("../build/contracts/InventoryPayment.json");
-const Web3 = require("web3");
-const web3 = new Web3("http://localhost:9545");
+const { contractABI, web3 } = require('../config');
 
 // Get network ID
 const getNetworkId = async () => {
@@ -46,25 +44,28 @@ router.post("/api/order/received", async (req, res) => {
     const receivedProducts = JSON.parse(receivedOrderProductDetails);
 
     const jsonData = {
-      orderNo: 1,
-      receivedProducts: [
+      "orderNo": 1,
+      "receivedProducts": [
         {
-          productId: 1,
-          productQtyOrder: 50,
-          productQtyReceived: 40,
-          productPrice: 20,
+          "productId": 1,
+          "productQtyOrder": 100,
+          "productQtyReceived": 100,
+          "productPrice": 20
         },
         {
-          productId: 2,
-          productQtyOrder: 50,
-          productQtyReceived: 40,
-          productPrice: 10,
+          "productId": 2,
+          "productQtyOrder": 100,
+          "productQtyReceived": 100,
+          "productPrice": 20
         },
-      ],
+        {
+          "productId": 3,
+          "productQtyOrder": 100,
+          "productQtyReceived": 100,
+          "productPrice": 10
+        }
+      ]
     };
- 
-    console.log("orderNo: ",orderNo);
-    console.log("receivedProducts: ",receivedProducts);
 
     contract.getPastEvents('LogDebugMessage', { fromBlock: 0, toBlock: 'latest' }, function(error, events) {
       if (!error) {

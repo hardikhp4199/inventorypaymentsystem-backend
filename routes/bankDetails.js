@@ -2,9 +2,7 @@
 const express = require("express");
 const router = express.Router();
 
-const contractABI = require("../build/contracts/InventoryPayment.json");
-const Web3 = require("web3");
-const web3 = new Web3("http://localhost:9545");
+const { contractABI, web3 } = require('../config');
 
 // Get network ID
 const getNetworkId = async () => {

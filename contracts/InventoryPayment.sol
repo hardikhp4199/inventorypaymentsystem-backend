@@ -18,7 +18,7 @@ contract InventoryPayment {
         uint256 supplierId;
         uint256[] productIds;
         uint256[] productQtys;
-        bool isReceived; // New field to track order receipt
+        bool isReceived;
     }
 
     struct OrderDetail {
@@ -430,11 +430,6 @@ contract InventoryPayment {
             }
         }
        
-        // if (!bankFound) {
-        //     return (false, "No bank details found");
-        // }else{
-        //     emit LogDebugMessage(userBank.bankName);
-        // }
         require(bankFound, "No bank details found");
 
         Order[] storage orders = userOrders[msg.sender];
@@ -452,17 +447,14 @@ contract InventoryPayment {
                 for (uint256 j = 0; j < _receivedProducts.length; j++) {
                     emit LogDebugMessage("Stage 4");
                     require(_receivedProducts[j].productQtyReceived <= orders[i].productQtys[j], "Received quantity exceeds ordered quantity");
-                    // if (_receivedProducts[j].productQtyReceived > orders[i].productQtys[j]) {
-                    //     return (false, "Received quantity exceeds ordered quantity");
-                    // }
+
                     totalAmount += _receivedProducts[j].productQtyReceived * _receivedProducts[j].productPrice;
 
                     products[_receivedProducts[j].productId].productQty += _receivedProducts[j].productQtyReceived;
                 }
-                emit LogDebugMessage("Stage 5");
-                //return (false, orders[i].orderStatus);
-                // Mark order as received
+                
                 emit LogOrderStatus(orders[i].orderStatus);
+                
                 orders[i].isReceived = true;
                 orders[i].orderStatus = "received";
                 orders[i].orderTotalAmount = totalAmount;
