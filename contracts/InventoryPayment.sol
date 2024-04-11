@@ -61,7 +61,7 @@ contract InventoryPayment {
     mapping(uint256 => SupplierBank) public supplierBankDetails;
     mapping(uint256 => Supplier) public suppliers;
     
-    event OrderPlaced(uint256 indexed orderNo, address indexed user);
+    event OrderPlaced(uint256 indexed orderNo);
 
     event BankAdded(uint256 indexed bankId);
     event BankUpdated(uint256 indexed bankId);
@@ -94,7 +94,7 @@ contract InventoryPayment {
         );
         require(
             bytes(_supplierNumber).length > 0,
-            "Supplier number cannot be empty"
+            "Supplier number cannot be less then zero"
         );
         require(bytes(_bankName).length > 0, "Bank name cannot be empty");
         require(bytes(_sortCode).length > 0, "Sort code cannot be empty");
@@ -138,6 +138,19 @@ contract InventoryPayment {
             _supplierId <= supplierCount && _supplierId > 0,
             "Invalid supplier ID"
         );
+        
+        require(
+            bytes(_newName).length > 0,
+            "Supplier name cannot be empty"
+        );
+        require(
+            bytes(_newNumber).length > 0,
+            "Supplier number cannot be less then zero"
+        );
+        require(bytes(_newBankName).length > 0, "Bank name cannot be empty");
+        require(bytes(_newSortCode).length > 0, "Sort code cannot be empty");
+        require(_newAccountNumber != 0, "Bank account number cannot be zero");
+
         Supplier storage supplier = suppliers[_supplierId];
         supplier.supplierName = _newName;
         supplier.supplierNumber = _newNumber;
@@ -249,6 +262,11 @@ contract InventoryPayment {
         uint256 _productPrice,
         uint256 _productQty
     ) external {
+
+        require(bytes(_productName).length > 0, "Product name cannot be less then empty");
+        require(_productPrice > 0, "Product price cannot be less then zero");
+        require(_productQty > 0, "Product qty cannot be less then zero");
+
         productCount++;
         products[productCount] = Product(
             productCount,
@@ -291,6 +309,10 @@ contract InventoryPayment {
             _productId <= productCount && _productId > 0,
             "Invalid product ID"
         );
+        require(bytes(_newName).length > 0, "Product name cannot be empty");
+        require(_newPrice > 0, "Product price cannot be less then zero");
+        require(_newQty > 0, "Product qty cannot be less then zero");
+        
         Product storage product = products[_productId];
         product.productName = _newName;
         product.productPrice = _newPrice;
@@ -345,6 +367,11 @@ contract InventoryPayment {
             totalAmount += products[_productIds[i]].productPrice * _productQtyOrder[i];
         }
 
+        require(
+            _supplierId <= supplierCount && _supplierId > 0,
+            "Invalid supplier ID"
+        );
+
         orderCount++;
         uint256 orderNo = orderCount; // Use sequential order number
         
@@ -366,7 +393,7 @@ contract InventoryPayment {
             false
         ));
 
-        emit OrderPlaced(orderNo, msg.sender);
+        emit OrderPlaced(orderNo);
     }
 
     // Function to retrieve order numbers for a user
@@ -387,7 +414,8 @@ contract InventoryPayment {
         string memory orderStatus,
         uint256 supplierId,
         uint256[] memory productIds,
-        uint256[] memory productQtys
+        uint256[] memory productQtys,
+        bool isReceived
     ) {
         Order[] storage orders = userOrders[_user];
         for (uint256 i = 0; i < orders.length; i++) {
@@ -400,7 +428,8 @@ contract InventoryPayment {
                     order.orderStatus,
                     order.supplierId,
                     order.productIds,
-                    order.productQtys
+                    order.productQtys,
+                    order.isReceived
                 );
             }
         }
