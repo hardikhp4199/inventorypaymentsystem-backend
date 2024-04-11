@@ -72,6 +72,27 @@ router.post("/api/addBankDetails", async (req, res) => {
   }
 });
 
+router.post("/api/addBankDetails1", async (req, res) => {
+  try {
+    const { bankName, accountNumber, backupAmount } = req.body;
+
+    const contract = await getContractInstance();
+    const accounts = await web3.eth.getAccounts();
+
+    const gasEstimate = await contract.methods
+      .addUserBankDetails(bankName, Number(accountNumber), Number(backupAmount))
+      .estimateGas({ from: accounts[0] });
+    const gasLimit = gasEstimate * 2;
+    await contract.methods
+      .addUserBankDetails(bankName, Number(accountNumber), Number(backupAmount))
+      .send({ from: accounts[0], gas: gasLimit });
+
+    res.status(200).json({ message: "Bank details added successfully" });
+  } catch (error) {
+    console.error("Error adding bank details:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 router.put("/api/updateBank/:bankId", async (req, res) => {
   try {
